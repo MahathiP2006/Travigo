@@ -1,37 +1,41 @@
-import React, { useContext } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ProfileContext } from '../context/ProfileContext';
 
-export default function UpcomingTrip() {
-  const { profile } = useContext(ProfileContext);
+export default function UpcomingTrip({ onNavigateToTrip }) {
+  const { activeTrip, getDepartureCountdown, sm2Phrases } = useContext(ProfileContext);
+  const [countdown, setCountdown] = useState(getDepartureCountdown());
 
-  // Dynamic trip destination mapping based on learning language
-  const tripDetails = {
-    Spanish: { destination: 'Madrid, Spain', date: 'Oct 15, 2026', daysLeft: 97, icon: 'airplane' },
-    French: { destination: 'Paris, France', date: 'Dec 02, 2026', daysLeft: 145, icon: 'airplane' },
-    Japanese: { destination: 'Tokyo, Japan', date: 'Nov 10, 2026', daysLeft: 123, icon: 'airplane' },
-    German: { destination: 'Berlin, Germany', date: 'Sep 30, 2026', daysLeft: 82, icon: 'airplane' },
-    Italian: { destination: 'Rome, Italy', date: 'Sep 05, 2026', daysLeft: 57, icon: 'airplane' }
-  };
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown(getDepartureCountdown());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [activeTrip]);
 
-  const trip = tripDetails[profile.learningLanguage] || tripDetails['Spanish'];
+  const masteredCount = sm2Phrases.filter(p => (p.repetitions || 0) >= 3).length;
+  const goalCount = activeTrip.goalPhrases || 50;
+  const progress = Math.min(100, Math.round((masteredCount / goalCount) * 100));
 
-  // Vocabulary prep percentage (mock progress but related to saved phrases size)
-  const progress = Math.min(100, Math.round(50 + (2.5 * 10))); // mock progress but feels realistic
+  const formattedDate = new Date(activeTrip.departureDate).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
 
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.iconContainer}>
-          <Ionicons name={trip.icon} size={22} color="#ffffff" />
+          <Ionicons name="airplane" size={22} color="#ffffff" />
         </View>
         <View style={styles.headerTextContainer}>
           <Text style={styles.label}>UPCOMING ADVENTURE</Text>
-          <Text style={styles.destination}>{trip.destination}</Text>
+          <Text style={styles.destination}>{activeTrip.destination}</Text>
         </View>
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>{trip.daysLeft} days left</Text>
+          <Text style={styles.badgeText}>{countdown.days}d {countdown.hours}h left</Text>
         </View>
       </View>
 
@@ -39,19 +43,26 @@ export default function UpcomingTrip() {
 
       <View style={styles.tripFooter}>
         <View style={styles.footerRow}>
-          <Text style={styles.footerLabel}>Departure Date</Text>
-          <Text style={styles.footerValue}>{trip.date}</Text>
+          <Text style={styles.footerLabel}>Departure Flight</Text>
+          <Text style={styles.footerValue}>{formattedDate}</Text>
         </View>
-        
+
         <View style={styles.progressContainer}>
           <View style={styles.progressLabelRow}>
-            <Text style={styles.progressLabel}>Vocab Readiness</Text>
+            <Text style={styles.progressLabel}>Vocab Departure Readiness</Text>
             <Text style={styles.progressValue}>{progress}%</Text>
           </View>
           <View style={styles.progressBarBg}>
             <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
           </View>
         </View>
+
+        {onNavigateToTrip && (
+          <TouchableOpacity style={styles.actionBtn} onPress={onNavigateToTrip}>
+            <Text style={styles.actionBtnText}>View Countdown Details & Target Goals</Text>
+            <Ionicons name="arrow-forward" size={14} color="#7b4eff" />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -61,59 +72,59 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#ffffff',
     borderRadius: 20,
-    padding: 20,
+    padding: 18,
     marginBottom: 16,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    shadowColor: '#7b4eff',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 14,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: '#edf0f7',
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   iconContainer: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: '#7b4eff',
-    alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    alignItems: 'center',
   },
   headerTextContainer: {
     flex: 1,
+    marginLeft: 12,
   },
   label: {
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: '#7b4eff',
-    letterSpacing: 1,
-    marginBottom: 2,
+    letterSpacing: 0.8,
   },
   destination: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333333',
+    fontWeight: '800',
+    color: '#1e1e2d',
+    marginTop: 2,
   },
   badge: {
-    backgroundColor: '#fff1f0',
+    backgroundColor: '#ede9fe',
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ffa39e',
+    borderRadius: 12,
   },
   badgeText: {
+    color: '#7b4eff',
     fontSize: 11,
-    color: '#f5222d',
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   divider: {
     height: 1,
-    backgroundColor: '#f0f2f5',
-    marginVertical: 15,
+    backgroundColor: '#f1f5f9',
+    marginVertical: 14,
   },
   tripFooter: {
     gap: 12,
@@ -125,39 +136,55 @@ const styles = StyleSheet.create({
   },
   footerLabel: {
     fontSize: 13,
-    color: '#777777',
+    color: '#64748b',
+    fontWeight: '500',
   },
   footerValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333333',
+    fontSize: 13,
+    color: '#1e293b',
+    fontWeight: '700',
   },
   progressContainer: {
-    marginTop: 4,
+    gap: 6,
   },
   progressLabelRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 6,
   },
   progressLabel: {
-    fontSize: 13,
-    color: '#777777',
+    fontSize: 12,
+    color: '#64748b',
+    fontWeight: '600',
   },
   progressValue: {
-    fontSize: 13,
-    fontWeight: 'bold',
+    fontSize: 12,
     color: '#7b4eff',
+    fontWeight: '800',
   },
   progressBarBg: {
-    height: 8,
-    backgroundColor: '#f1ecff',
-    borderRadius: 4,
+    height: 6,
+    backgroundColor: '#f1f5f9',
+    borderRadius: 3,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
     backgroundColor: '#7b4eff',
-    borderRadius: 4,
+    borderRadius: 3,
+  },
+  actionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f5f3ff',
+    paddingVertical: 8,
+    borderRadius: 10,
+    gap: 6,
+    marginTop: 4,
+  },
+  actionBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#7b4eff',
   },
 });

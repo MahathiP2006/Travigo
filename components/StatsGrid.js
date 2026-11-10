@@ -4,22 +4,20 @@ import { Ionicons } from '@expo/vector-icons';
 import { ProfileContext } from '../context/ProfileContext';
 
 export default function StatsGrid() {
-  const { stats, savedPhrases } = useContext(ProfileContext);
+  const { stats, savedPhrases, sm2Phrases } = useContext(ProfileContext);
 
-  // Stats definition with labels, icons, values and colors
   const statItems = [
     {
-      id: 'studyTime',
-      label: 'Study Time',
-      value: stats.studyTime,
-      icon: 'time-outline',
-      color: '#36cfc9',
-      bgColor: '#e6fffb'
+      id: 'retentionScore',
+      label: 'SM-2 Retention',
+      value: `${stats.retentionScore || 88}%`,
+      icon: 'sparkles-outline',
+      color: '#10b981',
+      bgColor: '#ecfdf5'
     },
     {
       id: 'phrasesLearned',
-      label: 'Phrases Learned',
-      // Dynamically display phrases length if it is greater than the standard stats value
+      label: 'Travel Phrases',
       value: Math.max(stats.phrasesLearned, savedPhrases.length),
       icon: 'book-outline',
       color: '#7b4eff',
@@ -27,31 +25,30 @@ export default function StatsGrid() {
     },
     {
       id: 'streak',
-      label: 'Daily Streak',
+      label: 'Study Streak',
       value: `${stats.streak} Days`,
-      icon: 'flame-outline',
+      icon: 'flame',
       color: '#ff7a45',
       bgColor: '#fff2e8'
     },
     {
-      id: 'scenarios',
-      label: 'Scenarios',
-      value: stats.scenarios,
-      icon: 'chatbubbles-outline',
-      color: '#ffec3d',
-      colorIcon: '#ad8b00', // darker for visibility
-      bgColor: '#feffe6'
+      id: 'dueReview',
+      label: 'SM-2 Due Today',
+      value: `${sm2Phrases.length}`,
+      icon: 'bulb-outline',
+      color: '#3b82f6',
+      bgColor: '#eff6ff'
     }
   ];
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionHeader}>Your Progress Stats</Text>
+      <Text style={styles.sectionHeader}>TRAVEL VOCABULARY METRICS</Text>
       <View style={styles.grid}>
         {statItems.map((item) => (
           <View key={item.id} style={styles.statCard}>
             <View style={[styles.iconWrapper, { backgroundColor: item.bgColor }]}>
-              <Ionicons name={item.icon} size={24} color={item.colorIcon || item.color} />
+              <Ionicons name={item.icon} size={22} color={item.color} />
             </View>
             <Text style={styles.valueText}>{item.value}</Text>
             <Text style={styles.labelText}>{item.label}</Text>
@@ -64,50 +61,51 @@ export default function StatsGrid() {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 18,
+    marginBottom: 16,
   },
   sectionHeader: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333333',
-    marginBottom: 10,
-    paddingLeft: 4,
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#94a3b8',
+    letterSpacing: 1,
+    marginBottom: 12,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    gap: 10,
   },
   statCard: {
+    flex: 1,
+    minWidth: '47%',
     backgroundColor: '#ffffff',
-    width: '48%', // Ensures two cards fit side by side with spacing
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 14,
-    alignItems: 'center',
-    shadowColor: '#000000',
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#edf0f7',
+    shadowColor: '#7b4eff',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.04,
-    shadowRadius: 8,
+    shadowRadius: 10,
     elevation: 2,
   },
   iconWrapper: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    alignItems: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 10,
   },
   valueText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333333',
-    marginBottom: 2,
+    fontWeight: '800',
+    color: '#1e1e2d',
   },
   labelText: {
     fontSize: 12,
-    color: '#777777',
+    color: '#64748b',
     fontWeight: '500',
+    marginTop: 2,
   },
 });
