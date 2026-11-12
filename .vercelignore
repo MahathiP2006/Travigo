@@ -1,0 +1,4 @@
+# Ignore Python backend from Vercel frontend static build
+backend/
+.venv/
+*.py
