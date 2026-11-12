@@ -150,7 +150,7 @@ python -m venv .venv
 source .venv/bin/activate
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -r requirements-backend.txt
 
 # Run FastAPI server with auto-reload
 uvicorn main:app --reload --port 8000
